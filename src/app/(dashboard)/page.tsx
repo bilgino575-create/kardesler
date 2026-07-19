@@ -92,7 +92,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
         <p className="text-sm text-slate-500">
-          Kardeşler Tobacco ERP sistemine hoş geldiniz.
+          İkizler Tobacco ERP sistemine hoş geldiniz.
         </p>
       </div>
 

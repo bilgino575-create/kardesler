@@ -21,7 +21,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-5">
         <Cigarette className="h-6 w-6 text-slate-900" />
         <div className="leading-tight">
-          <p className="text-sm font-semibold text-slate-900">Kardeşler</p>
+          <p className="text-sm font-semibold text-slate-900">İkizler</p>
           <p className="text-xs text-slate-500">Tobacco ERP</p>
         </div>
       </div>

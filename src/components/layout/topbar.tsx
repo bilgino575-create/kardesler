@@ -3,6 +3,7 @@ import { Bell, LogOut, Search } from "lucide-react";
 import { logout } from "@/app/(dashboard)/actions";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/current-user";
+import { MobileSidebar } from "@/components/layout/mobile-sidebar";
 
 async function getUnreadCount() {
   try {
@@ -18,8 +19,10 @@ export async function Topbar() {
   const unreadCount = await getUnreadCount();
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-6 print:hidden">
-      <div className="relative flex-1 max-w-md">
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 sm:gap-4 sm:px-6 print:hidden">
+      <MobileSidebar />
+
+      <div className="relative min-w-0 flex-1 sm:max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="search"
@@ -28,7 +31,7 @@ export async function Topbar() {
         />
       </div>
 
-      <div className="ml-auto flex items-center gap-4">
+      <div className="ml-auto flex items-center gap-2 sm:gap-4">
         <Link
           href="/notifications"
           aria-label="Bildirimler"
@@ -41,11 +44,11 @@ export async function Topbar() {
             </span>
           )}
         </Link>
-        <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+        <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
             SA
           </div>
-          <div className="leading-tight">
+          <div className="hidden leading-tight sm:block">
             <p className="text-sm font-medium text-slate-900">Super Admin</p>
             <p className="text-xs text-slate-500">Yönetici</p>
           </div>

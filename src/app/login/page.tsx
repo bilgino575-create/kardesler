@@ -17,7 +17,7 @@ export default async function LoginPage({
             <Cigarette className="h-5 w-5 text-white" />
           </div>
           <h1 className="text-lg font-semibold text-slate-900">
-            Kardeşler Tobacco ERP
+            İkizler Tobacco ERP
           </h1>
           <p className="text-sm text-slate-500">Hesabınızla giriş yapın</p>
         </div>

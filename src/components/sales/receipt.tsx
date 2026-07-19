@@ -35,7 +35,7 @@ export function Receipt({
     <div className="mx-auto max-w-sm space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-6 font-mono text-sm">
         <div className="text-center">
-          <p className="text-base font-bold">Kardeşler Tobacco</p>
+          <p className="text-base font-bold">İkizler Tobacco</p>
           <p className="text-xs text-slate-500">Satış Fişi</p>
         </div>
         <div className="my-3 border-t border-dashed border-slate-300" />

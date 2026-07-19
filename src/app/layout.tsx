@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kardeşler Tobacco ERP",
-  description: "Kardeşler Tobacco Kurumsal Kaynak Planlama Sistemi",
+  title: "İkizler Tobacco ERP",
+  description: "İkizler Tobacco Kurumsal Kaynak Planlama Sistemi",
 };
 
 export default function RootLayout({

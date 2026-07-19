@@ -1,4 +1,4 @@
-// Kardeşler Tobacco ERP - initial product catalog seed data.
+// İkizler Tobacco ERP - initial product catalog seed data.
 // Prices and stock are intentionally left at 0 — no real business figures were
 // supplied for these products. Fill them in from the admin panel after seeding.
 
