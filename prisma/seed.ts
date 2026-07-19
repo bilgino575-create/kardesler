@@ -81,7 +81,7 @@ async function main() {
     });
   }
 
-  const superAdminPassword = "Ikizler2026!";
+  const superAdminPassword = "ikizler123";
   const superAdminPasswordHash = await bcrypt.hash(superAdminPassword, 12);
 
   await prisma.user.upsert({
