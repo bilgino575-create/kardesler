@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/current-user";
 import { logAudit } from "@/lib/audit-log";
+import { generateBarcode, generateProductCode, generateSku } from "@/lib/product-codes";
 import {
   completeSaleSchema,
   type CompleteSaleInput,
@@ -11,6 +12,86 @@ import {
 } from "@/lib/validation/sale";
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
+
+export type QuickAddProductResult =
+  | {
+      success: true;
+      product: {
+        id: string;
+        name: string;
+        barcode: string | null;
+        sku: string;
+        salePrice: number;
+        vat: number;
+        stock: number;
+        unit: string;
+        categoryName: string;
+      };
+    }
+  | { success: false; error: string };
+
+// For items sold at the register that aren't in the catalog yet — cashier
+// types a name + price on the spot instead of stopping the sale to fill out
+// the full product form. Creates a real Product so it's still tracked.
+export async function quickAddProduct(
+  name: string,
+  price: number,
+  quantity: number,
+): Promise<QuickAddProductResult> {
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    return { success: false, error: "Ürün adı gerekli." };
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    return { success: false, error: "Geçerli bir fiyat girin." };
+  }
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return { success: false, error: "Geçerli bir adet girin." };
+  }
+
+  const category = await prisma.category.upsert({
+    where: { slug: "hizli-satis" },
+    update: {},
+    create: { name: "Hızlı Satış Ürünleri", slug: "hizli-satis" },
+  });
+
+  const sequence = (await prisma.product.count()) + 1;
+
+  const product = await prisma.product.create({
+    data: {
+      name: trimmedName,
+      categoryId: category.id,
+      barcode: generateBarcode(sequence),
+      sku: generateSku(sequence),
+      productCode: generateProductCode(sequence),
+      purchasePrice: 0,
+      salePrice: price,
+      wholesalePrice: price,
+      vat: 20,
+      stock: quantity,
+      minimumStock: 0,
+      unit: "PIECE",
+      status: "ACTIVE",
+    },
+  });
+
+  revalidatePath("/inventory");
+
+  return {
+    success: true,
+    product: {
+      id: product.id,
+      name: product.name,
+      barcode: product.barcode,
+      sku: product.sku,
+      salePrice: Number(product.salePrice),
+      vat: Number(product.vat),
+      stock: product.stock,
+      unit: product.unit,
+      categoryName: category.name,
+    },
+  };
+}
 
 export async function completeSale(
   input: CompleteSaleInput,
@@ -98,6 +179,13 @@ export async function completeSale(
         },
       });
 
+      if (data.paymentMethod === "CREDIT" && data.customerId) {
+        await tx.customer.update({
+          where: { id: data.customerId },
+          data: { creditBalance: { increment: total } },
+        });
+      }
+
       const lowStockProductIds: string[] = [];
 
       for (const item of itemsToCreate) {
@@ -153,4 +241,28 @@ export async function completeSale(
     const message = error instanceof Error ? error.message : "Satış tamamlanamadı.";
     return { success: false, error: message };
   }
+}
+
+export type QuickAddCustomerResult =
+  | { success: true; customer: { id: string; name: string } }
+  | { success: false; error: string };
+
+// Lets the cashier add a veresiye (credit) customer on the spot instead of
+// leaving the register to use the full Müşteriler form.
+export async function quickAddCustomer(
+  name: string,
+  phone: string,
+): Promise<QuickAddCustomerResult> {
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    return { success: false, error: "Müşteri adı gerekli." };
+  }
+
+  const customer = await prisma.customer.create({
+    data: { name: trimmedName, phone: phone.trim() || undefined },
+  });
+
+  revalidatePath("/customers");
+
+  return { success: true, customer: { id: customer.id, name: customer.name } };
 }

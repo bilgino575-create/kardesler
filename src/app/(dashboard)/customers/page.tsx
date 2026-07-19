@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { deleteCustomer } from "./actions";
+import { deleteCustomer, collectPayment } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -11,17 +11,27 @@ const currency = (value: number) =>
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; success?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, success } = await searchParams;
 
   let customers: Awaited<ReturnType<typeof prisma.customer.findMany>> = [];
   let dbConnected = true;
   try {
-    customers = await prisma.customer.findMany({ orderBy: { name: "asc" } });
+    customers = await prisma.customer.findMany({
+      orderBy: [{ creditBalance: "desc" }, { name: "asc" }],
+    });
   } catch {
     dbConnected = false;
   }
+
+  const totalDebt = customers.reduce(
+    (sum, customer) => sum + Number(customer.creditBalance),
+    0,
+  );
+  const debtorCount = customers.filter(
+    (customer) => Number(customer.creditBalance) > 0,
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -46,6 +56,27 @@ export default async function CustomersPage({
           {error}
         </div>
       )}
+      {success && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          Tahsilat kaydedildi.
+        </div>
+      )}
+
+      {totalDebt > 0 && (
+        <div className="flex items-center gap-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-100">
+            <Wallet className="h-5 w-5 text-amber-700" />
+          </div>
+          <div>
+            <p className="text-lg font-semibold text-amber-900">
+              {currency(totalDebt)} veresiye alacağınız var
+            </p>
+            <p className="text-sm text-amber-700">
+              {debtorCount} müşteride borç bulunuyor
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full text-left text-sm">
@@ -53,54 +84,76 @@ export default async function CustomersPage({
             <tr>
               <th className="px-4 py-3 font-medium">Ad</th>
               <th className="px-4 py-3 font-medium">Telefon</th>
-              <th className="px-4 py-3 font-medium">E-posta</th>
-              <th className="px-4 py-3 font-medium">Cari Bakiye</th>
+              <th className="px-4 py-3 font-medium">Veresiye Bakiyesi</th>
+              <th className="px-4 py-3 font-medium">Tahsilat Al</th>
               <th className="px-4 py-3 font-medium text-right">Aksiyon</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {customers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium text-slate-900">
-                  {customer.name}
-                </td>
-                <td className="px-4 py-3 text-slate-600">
-                  {customer.phone ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-slate-600">
-                  {customer.email ?? "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={
-                      Number(customer.creditBalance) > 0
-                        ? "font-medium text-red-600"
-                        : "text-slate-600"
-                    }
-                  >
-                    {currency(Number(customer.creditBalance))}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-3">
-                    <Link
-                      href={`/customers/${customer.id}/edit`}
-                      className="text-sm font-medium text-slate-600 hover:text-slate-900"
+            {customers.map((customer) => {
+              const balance = Number(customer.creditBalance);
+              return (
+                <tr key={customer.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium text-slate-900">
+                    {customer.name}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {customer.phone ?? "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={
+                        balance > 0 ? "font-semibold text-red-600" : "text-slate-400"
+                      }
                     >
-                      Düzenle
-                    </Link>
-                    <form action={deleteCustomer.bind(null, customer.id)}>
-                      <button
-                        type="submit"
-                        className="text-sm font-medium text-red-500 hover:text-red-700"
+                      {currency(balance)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {balance > 0 && (
+                      <form
+                        action={collectPayment.bind(null, customer.id)}
+                        className="flex items-center gap-2"
                       >
-                        Sil
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                        <input
+                          type="number"
+                          name="amount"
+                          min="0.01"
+                          step="0.01"
+                          max={balance}
+                          placeholder={balance.toFixed(2)}
+                          className="w-24 rounded-md border border-slate-300 px-2 py-1 text-xs"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                        >
+                          Al
+                        </button>
+                      </form>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/customers/${customer.id}/edit`}
+                        className="text-sm font-medium text-slate-600 hover:text-slate-900"
+                      >
+                        Düzenle
+                      </Link>
+                      <form action={deleteCustomer.bind(null, customer.id)}>
+                        <button
+                          type="submit"
+                          className="text-sm font-medium text-red-500 hover:text-red-700"
+                        >
+                          Sil
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
             {customers.length === 0 && dbConnected && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-400">

@@ -6,12 +6,14 @@ export const dynamic = "force-dynamic";
 export default async function SalesPage() {
   let products: Awaited<ReturnType<typeof getPosData>>["products"] = [];
   let customers: Awaited<ReturnType<typeof getPosData>>["customers"] = [];
+  let favoriteProductIds: Awaited<ReturnType<typeof getPosData>>["favoriteProductIds"] = [];
   let dbConnected = true;
 
   try {
     const data = await getPosData();
     products = data.products;
     customers = data.customers;
+    favoriteProductIds = data.favoriteProductIds;
   } catch {
     dbConnected = false;
   }
@@ -33,7 +35,11 @@ export default async function SalesPage() {
           <code>DATABASE_URL</code> değerini kontrol edin.
         </div>
       ) : (
-        <PosScreen products={products} customers={customers} />
+        <PosScreen
+          products={products}
+          customers={customers}
+          favoriteProductIds={favoriteProductIds}
+        />
       )}
     </div>
   );

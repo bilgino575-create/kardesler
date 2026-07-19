@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import {
   productUnits,
   productUnitLabels,
@@ -98,6 +99,7 @@ export function ProductForm({
               name="name"
               defaultValue={defaults?.name}
               required
+              autoFocus={!isEdit}
               className="input"
             />
           </Field>
@@ -124,7 +126,31 @@ export function ProductForm({
             </select>
           </Field>
 
-          <Field label="Marka" error={fieldError("brand")}>
+          <Field label="Satış Fiyatı (₺)" error={fieldError("salePrice")}>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="salePrice"
+              defaultValue={defaults?.salePrice ?? 0}
+              required
+              className="input"
+            />
+          </Field>
+
+          <Field label="Stok" error={fieldError("stock")}>
+            <input
+              type="number"
+              step="1"
+              min="0"
+              name="stock"
+              defaultValue={defaults?.stock ?? 0}
+              required
+              className="input"
+            />
+          </Field>
+
+          <Field label="Marka (opsiyonel)" error={fieldError("brand")}>
             <input
               name="brand"
               list="brand-options"
@@ -141,194 +167,179 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">
-          Tanımlayıcılar
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Field label="Barkod" error={fieldError("barcode")}>
-            <input
-              name="barcode"
-              defaultValue={defaults?.barcode ?? ""}
-              placeholder="Otomatik oluşturulacak"
-              className="input"
-            />
-          </Field>
+      <details className="group rounded-lg border border-slate-200 bg-white">
+        <summary className="flex cursor-pointer list-none items-center gap-2 p-6 text-sm font-semibold text-slate-900">
+          <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-0 -rotate-90" />
+          Gelişmiş Ayarlar (opsiyonel)
+        </summary>
 
-          {isEdit ? (
-            <>
-              <Field label="SKU">
+        <div className="space-y-6 border-t border-slate-100 p-6 pt-6">
+          <div>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Tanımlayıcılar
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Barkod" error={fieldError("barcode")}>
                 <input
-                  defaultValue={defaults?.sku}
-                  disabled
-                  className="input bg-slate-50 text-slate-500"
-                />
-              </Field>
-              <Field label="Ürün Kodu">
-                <input
-                  defaultValue={defaults?.productCode}
-                  disabled
-                  className="input bg-slate-50 text-slate-500"
-                />
-              </Field>
-            </>
-          ) : (
-            <>
-              <Field label="SKU" error={fieldError("sku")}>
-                <input
-                  name="sku"
+                  name="barcode"
+                  defaultValue={defaults?.barcode ?? ""}
                   placeholder="Otomatik oluşturulacak"
                   className="input"
                 />
               </Field>
-              <Field label="Ürün Kodu" error={fieldError("productCode")}>
+
+              {isEdit ? (
+                <>
+                  <Field label="SKU">
+                    <input
+                      defaultValue={defaults?.sku}
+                      disabled
+                      className="input bg-slate-50 text-slate-500"
+                    />
+                  </Field>
+                  <Field label="Ürün Kodu">
+                    <input
+                      defaultValue={defaults?.productCode}
+                      disabled
+                      className="input bg-slate-50 text-slate-500"
+                    />
+                  </Field>
+                </>
+              ) : (
+                <>
+                  <Field label="SKU" error={fieldError("sku")}>
+                    <input
+                      name="sku"
+                      placeholder="Otomatik oluşturulacak"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="Ürün Kodu" error={fieldError("productCode")}>
+                    <input
+                      name="productCode"
+                      placeholder="Otomatik oluşturulacak"
+                      className="input"
+                    />
+                  </Field>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Diğer Fiyatlar
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Alış Fiyatı (₺)" error={fieldError("purchasePrice")}>
                 <input
-                  name="productCode"
-                  placeholder="Otomatik oluşturulacak"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  name="purchasePrice"
+                  defaultValue={defaults?.purchasePrice ?? 0}
                   className="input"
                 />
               </Field>
-            </>
-          )}
-        </div>
-      </div>
+              <Field label="Toptan Fiyatı (₺)" error={fieldError("wholesalePrice")}>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  name="wholesalePrice"
+                  defaultValue={defaults?.wholesalePrice ?? 0}
+                  className="input"
+                />
+              </Field>
+              <Field label="KDV (%)" error={fieldError("vat")}>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  name="vat"
+                  defaultValue={defaults?.vat ?? 20}
+                  className="input"
+                />
+              </Field>
+            </div>
+          </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">
-          Fiyatlandırma
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <Field label="Alış Fiyatı (₺)" error={fieldError("purchasePrice")}>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="purchasePrice"
-              defaultValue={defaults?.purchasePrice ?? 0}
-              required
-              className="input"
-            />
-          </Field>
-          <Field label="Satış Fiyatı (₺)" error={fieldError("salePrice")}>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="salePrice"
-              defaultValue={defaults?.salePrice ?? 0}
-              required
-              className="input"
-            />
-          </Field>
-          <Field label="Toptan Fiyatı (₺)" error={fieldError("wholesalePrice")}>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="wholesalePrice"
-              defaultValue={defaults?.wholesalePrice ?? 0}
-              required
-              className="input"
-            />
-          </Field>
-          <Field label="KDV (%)" error={fieldError("vat")}>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              max="100"
-              name="vat"
-              defaultValue={defaults?.vat ?? 20}
-              required
-              className="input"
-            />
-          </Field>
-        </div>
-      </div>
+          <div>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Stok ve Depo
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Minimum Stok" error={fieldError("minimumStock")}>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  name="minimumStock"
+                  defaultValue={defaults?.minimumStock ?? 5}
+                  className="input"
+                />
+              </Field>
+              <Field label="Birim" error={fieldError("unit")}>
+                <select
+                  name="unit"
+                  defaultValue={defaults?.unit ?? "PIECE"}
+                  className="input"
+                >
+                  {productUnits.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {productUnitLabels[unit]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Depo" error={fieldError("warehouseId")}>
+                <select
+                  name="warehouseId"
+                  defaultValue={defaults?.warehouseId ?? ""}
+                  className="input"
+                >
+                  <option value="">Depo seçilmedi</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+          </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">
-          Stok ve Depo
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <Field label="Stok" error={fieldError("stock")}>
-            <input
-              type="number"
-              step="1"
-              min="0"
-              name="stock"
-              defaultValue={defaults?.stock ?? 0}
-              required
-              className="input"
-            />
-          </Field>
-          <Field label="Minimum Stok" error={fieldError("minimumStock")}>
-            <input
-              type="number"
-              step="1"
-              min="0"
-              name="minimumStock"
-              defaultValue={defaults?.minimumStock ?? 5}
-              required
-              className="input"
-            />
-          </Field>
-          <Field label="Birim" error={fieldError("unit")}>
-            <select
-              name="unit"
-              defaultValue={defaults?.unit ?? "PIECE"}
-              className="input"
-            >
-              {productUnits.map((unit) => (
-                <option key={unit} value={unit}>
-                  {productUnitLabels[unit]}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Depo" error={fieldError("warehouseId")}>
-            <select
-              name="warehouseId"
-              defaultValue={defaults?.warehouseId ?? ""}
-              className="input"
-            >
-              <option value="">Depo seçilmedi</option>
-              {warehouses.map((warehouse) => (
-                <option key={warehouse.id} value={warehouse.id}>
-                  {warehouse.name}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <div>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Diğer
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Durum" error={fieldError("status")}>
+                <select
+                  name="status"
+                  defaultValue={defaults?.status ?? "ACTIVE"}
+                  className="input"
+                >
+                  {productStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {productStatusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Açıklama" className="sm:col-span-2">
+                <textarea
+                  name="description"
+                  defaultValue={defaults?.description ?? ""}
+                  rows={2}
+                  className="input resize-none"
+                />
+              </Field>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">Diğer</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Field label="Durum" error={fieldError("status")}>
-            <select
-              name="status"
-              defaultValue={defaults?.status ?? "ACTIVE"}
-              className="input"
-            >
-              {productStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {productStatusLabels[status]}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Açıklama" className="sm:col-span-2">
-            <textarea
-              name="description"
-              defaultValue={defaults?.description ?? ""}
-              rows={2}
-              className="input resize-none"
-            />
-          </Field>
-        </div>
-      </div>
+      </details>
 
       <div className="flex items-center gap-3">
         <button

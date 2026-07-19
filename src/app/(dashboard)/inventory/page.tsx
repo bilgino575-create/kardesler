@@ -103,6 +103,12 @@ export default async function InventoryPage({
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/inventory/bulk-price"
+            className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Toplu Zam
+          </Link>
+          <Link
             href="/inventory/stock-entry"
             className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >

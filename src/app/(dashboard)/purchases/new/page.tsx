@@ -5,7 +5,12 @@ import { getPurchaseFormData } from "../data";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewPurchasePage() {
+export default async function NewPurchasePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ add?: string }>;
+}) {
+  const { add } = await searchParams;
   const { products, suppliers } = await getPurchaseFormData();
 
   return (
@@ -23,7 +28,7 @@ export default async function NewPurchasePage() {
         </h1>
       </div>
 
-      <PurchaseForm products={products} suppliers={suppliers} />
+      <PurchaseForm products={products} suppliers={suppliers} initialProductId={add} />
     </div>
   );
 }

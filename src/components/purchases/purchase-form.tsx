@@ -29,14 +29,27 @@ const currency = (value: number) =>
 export function PurchaseForm({
   products,
   suppliers,
+  initialProductId,
 }: {
   products: PurchaseProduct[];
   suppliers: Supplier[];
+  initialProductId?: string;
 }) {
   const router = useRouter();
   const [supplierId, setSupplierId] = useState("");
   const [search, setSearch] = useState("");
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<Line[]>(() => {
+    const product = products.find((p) => p.id === initialProductId);
+    if (!product) return [];
+    return [
+      {
+        productId: product.id,
+        name: product.name,
+        quantity: 1,
+        unitCost: product.purchasePrice,
+      },
+    ];
+  });
   const [isPending, startTransition] = useTransition();
 
   const filteredProducts = useMemo(() => {

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getPosData() {
-  const [products, customers] = await Promise.all([
+  const [products, customers, topSellers] = await Promise.all([
     prisma.product.findMany({
       where: { status: "ACTIVE" },
       select: {
@@ -21,6 +21,12 @@ export async function getPosData() {
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.saleItem.groupBy({
+      by: ["productId"],
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: "desc" } },
+      take: 10,
+    }),
   ]);
 
   return {
@@ -36,5 +42,6 @@ export async function getPosData() {
       categoryName: product.category.name,
     })),
     customers,
+    favoriteProductIds: topSellers.map((row) => row.productId),
   };
 }

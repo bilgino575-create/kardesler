@@ -58,3 +58,37 @@ export async function deleteCustomer(id: string) {
   }
   revalidatePath("/customers");
 }
+
+// Şeyin sahibi tahsilat aldığında veresiye bakiyesini düşürür ve bunu bir
+// gelir kaydı olarak da işler (Gelirler raporlarında görünsün diye).
+export async function collectPayment(customerId: string, formData: FormData) {
+  const amount = Number(formData.get("amount") ?? 0);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    redirect(`/customers?error=${encodeURIComponent("Geçerli bir tahsilat tutarı girin.")}`);
+  }
+
+  const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+  if (!customer) {
+    redirect(`/customers?error=${encodeURIComponent("Müşteri bulunamadı.")}`);
+  }
+
+  const applied = Math.min(amount, Number(customer.creditBalance));
+
+  await prisma.$transaction([
+    prisma.customer.update({
+      where: { id: customerId },
+      data: { creditBalance: { decrement: applied } },
+    }),
+    prisma.income.create({
+      data: {
+        category: "Tahsilat",
+        amount: applied,
+        description: `${customer.name} — veresiye tahsilatı`,
+      },
+    }),
+  ]);
+
+  revalidatePath("/customers");
+  revalidatePath("/income");
+  redirect("/customers?success=1");
+}

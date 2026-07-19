@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -152,6 +153,12 @@ export default async function ReportsPage() {
                 <span className="font-medium text-red-600">
                   {product.stock} / min {product.minimumStock}
                 </span>
+                <Link
+                  href={`/purchases/new?add=${product.id}`}
+                  className="shrink-0 rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  Satın Al
+                </Link>
               </li>
             ))}
             {data.lowStockProducts.length === 0 && (
