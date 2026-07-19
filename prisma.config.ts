@@ -3,6 +3,30 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+// Direct (non-pooled) connection is used by Migrate/introspection.
+// Different hosting fallbacks provide this under different names:
+// - DIRECT_URL: our own .env convention
+// - DATABASE_URL_UNPOOLED / POSTGRES_URL_NON_POOLING: Vercel's Neon integration
+// - DATABASE_URL: last resort (pooled), works for everything except migrate.
+const candidates = {
+  DIRECT_URL: process.env["DIRECT_URL"],
+  DATABASE_URL_UNPOOLED: process.env["DATABASE_URL_UNPOOLED"],
+  POSTGRES_URL_NON_POOLING: process.env["POSTGRES_URL_NON_POOLING"],
+  DATABASE_URL: process.env["DATABASE_URL"],
+  POSTGRES_URL: process.env["POSTGRES_URL"],
+};
+
+const datasourceUrl = Object.values(candidates).find(Boolean);
+
+if (!datasourceUrl) {
+  const presence = Object.entries(candidates)
+    .map(([key, value]) => `${key}=${value ? "set" : "MISSING"}`)
+    .join(", ");
+  throw new Error(
+    `No database connection string found in any known env var. Checked: ${presence}`,
+  );
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -10,11 +34,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    // Direct (non-pooled) connection is used by Migrate/introspection.
-    // DATABASE_URL_UNPOOLED is what Vercel's Neon integration provides.
-    url:
-      process.env["DIRECT_URL"] ??
-      process.env["DATABASE_URL_UNPOOLED"] ??
-      process.env["DATABASE_URL"],
+    url: datasourceUrl,
   },
 });
