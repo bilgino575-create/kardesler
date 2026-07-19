@@ -101,13 +101,21 @@ export default async function InventoryPage({
             {dbConnected ? `${total} ürün` : "Veritabanına bağlanılamadı"}
           </p>
         </div>
-        <Link
-          href="/inventory/new"
-          className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-        >
-          <Plus className="h-4 w-4" />
-          Yeni Ürün
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/inventory/stock-entry"
+            className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Hızlı Stok Girişi
+          </Link>
+          <Link
+            href="/inventory/new"
+            className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          >
+            <Plus className="h-4 w-4" />
+            Yeni Ürün
+          </Link>
+        </div>
       </div>
 
       {!dbConnected && (
