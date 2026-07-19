@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Cigarette, ChevronDown } from "lucide-react";
-import { primaryNavSections, advancedNavSection } from "@/lib/nav-config";
+import { primaryNavItems, otherNavSection } from "@/lib/nav-config";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -12,9 +12,7 @@ export function Sidebar() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  const advancedActive = advancedNavSection.items.some((item) =>
-    isActive(item.href),
-  );
+  const otherActive = otherNavSection.items.some((item) => isActive(item.href));
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col print:hidden">
@@ -27,43 +25,36 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {primaryNavSections.map((section) => (
-          <div key={section.title} className="mb-5">
-            <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              {section.title}
-            </p>
-            <ul className="space-y-0.5">
-              {section.items.map((item) => {
-                const active = isActive(item.href);
-                const Icon = item.icon;
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
-                        active
-                          ? "bg-slate-900 text-white"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-                      )}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+        <ul className="space-y-0.5">
+          {primaryNavItems.map((item) => {
+            const active = isActive(item.href);
+            const Icon = item.icon;
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-2.5 py-2.5 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
 
-        <details className="group" open={advancedActive}>
+        <details className="group mt-5" open={otherActive}>
           <summary className="mb-2 flex cursor-pointer list-none items-center gap-1 px-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
             <ChevronDown className="h-3 w-3 transition-transform group-open:rotate-0 -rotate-90" />
-            {advancedNavSection.title}
+            {otherNavSection.title}
           </summary>
           <ul className="space-y-0.5">
-            {advancedNavSection.items.map((item) => {
+            {otherNavSection.items.map((item) => {
               const active = isActive(item.href);
               const Icon = item.icon;
               return (

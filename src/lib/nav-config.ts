@@ -32,43 +32,28 @@ export type NavSection = {
   items: NavItem[];
 };
 
-// Shown as-is: this is what a shop owner actually touches day to day.
-export const primaryNavSections: NavSection[] = [
-  {
-    title: "Genel",
-    items: [
-      { label: "Dashboard", href: "/", icon: LayoutDashboard },
-      { label: "Satış Yap", href: "/sales", icon: ShoppingCart },
-      { label: "Stok / Fiyat Girişi", href: "/inventory/stock-entry", icon: ClipboardEdit },
-    ],
-  },
-  {
-    title: "Dükkan",
-    items: [
-      { label: "Ürün Listesi", href: "/inventory", icon: Package },
-      { label: "Satın Alma", href: "/purchases", icon: Truck },
-      { label: "Müşteriler", href: "/customers", icon: Users },
-      { label: "Tedarikçiler", href: "/suppliers", icon: Building2 },
-      { label: "Kasa", href: "/cash-register", icon: Wallet },
-      { label: "Barkod", href: "/barcode", icon: Barcode },
-    ],
-  },
-  {
-    title: "Finans",
-    items: [
-      { label: "Giderler", href: "/expenses", icon: TrendingDown },
-      { label: "Gelirler", href: "/income", icon: TrendingUp },
-      { label: "Faturalar", href: "/invoices", icon: FileText },
-      { label: "Raporlar", href: "/reports", icon: BarChart3 },
-    ],
-  },
+// The only things a shop owner needs day to day — one flat list, no
+// section headers, so there's nothing to figure out.
+export const primaryNavItems: NavItem[] = [
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Satış Yap", href: "/sales", icon: ShoppingCart },
+  { label: "Stok / Fiyat Girişi", href: "/inventory/stock-entry", icon: ClipboardEdit },
+  { label: "Ürünler", href: "/inventory", icon: Package },
+  { label: "Müşteriler", href: "/customers", icon: Users },
+  { label: "Kasa", href: "/cash-register", icon: Wallet },
+  { label: "Raporlar", href: "/reports", icon: BarChart3 },
 ];
 
-// Tucked under a collapsed "Gelişmiş" disclosure — RBAC/audit/settings that a
-// single shop owner will rarely, if ever, need to open.
-export const advancedNavSection: NavSection = {
-  title: "Gelişmiş",
+// Everything else, tucked under a single collapsed "Diğer" disclosure.
+export const otherNavSection: NavSection = {
+  title: "Diğer",
   items: [
+    { label: "Satın Alma", href: "/purchases", icon: Truck },
+    { label: "Tedarikçiler", href: "/suppliers", icon: Building2 },
+    { label: "Barkod", href: "/barcode", icon: Barcode },
+    { label: "Giderler", href: "/expenses", icon: TrendingDown },
+    { label: "Gelirler", href: "/income", icon: TrendingUp },
+    { label: "Faturalar", href: "/invoices", icon: FileText },
     { label: "Depo", href: "/warehouse", icon: Building2 },
     { label: "Kullanıcılar", href: "/users", icon: UserCog },
     { label: "Roller", href: "/roles", icon: Shield },
